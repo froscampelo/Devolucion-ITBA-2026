@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback Liderazgo Aumentado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: una columna editorial; en escritorio el número de cada pregunta cuelga en un margen izquierdo */
+  color-scheme: light;
+  --surface: #ffffff;
+  --surface-2: #f2f4f9;
+  --ink: #13203b;
+  --ink-2: #4b5671;
+  --muted: #6b7489;
+  --rule: #e1e5ee;
+  --critical: #b42318;
+  --s-0: #2b5bd6; /* Estratégico */
+  --s-1: #00826b; /* Táctico */
+  --s-2: #c2410c; /* Operativo */
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+[hidden] { display: none !important; }
+.page { max-width: 980px; margin: 0 auto; padding: clamp(36px, 7vw, 88px) clamp(16px, 5vw, 48px) 96px; }
+
+/* ---------- Encabezado ---------- */
+.byline {
+  display: flex; align-items: center; gap: 14px; margin: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-2);
+}
+.byline::before { content: ""; width: 32px; height: 2px; border-radius: 2px; background: var(--ink); flex: none; }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 340;
+  font-size: clamp(40px, 7.2vw, 80px);
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+  margin: 22px 0 0;
+  max-width: 880px;
+  text-wrap: balance;
+}
+h1 .aug { font-weight: 800; letter-spacing: -0.035em; }
+.signature { display: flex; gap: 3px; margin-top: 30px; }
+.signature i { display: block; height: 6px; width: 44px; border-radius: 3px; }
+.intro { margin: 26px 0 0; max-width: 58ch; font-size: clamp(18px, 2.1vw, 21px); line-height: 1.5; color: var(--ink-2); }
+
+/* ---------- Preguntas ---------- */
+.questions { margin-top: 64px; }
+.q { display: grid; grid-template-columns: 96px minmax(0, 1fr); column-gap: 24px; padding: 56px 0; border-top: 1px solid var(--rule); }
+.q-num {
+  font-family: var(--font-display); font-size: 48px; font-weight: 300; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.q-num small {
+  display: block; margin-top: 10px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+}
+.q-context { margin: 0 0 12px; max-width: 62ch; font-size: 18px; color: var(--ink-2); }
+.q-title {
+  margin: 0; max-width: 40ch;
+  font-family: var(--font-display); font-weight: 500; font-size: clamp(23px, 2.8vw, 30px);
+  line-height: 1.2; letter-spacing: -0.012em; text-wrap: balance;
+}
+.q-hint { margin: 12px 0 0; font-size: 15px; color: var(--muted); }
+.q-body { margin-top: 36px; }
+
+/* Pregunta 1: barra */
+.meter { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 32px; }
+.meter-value {
+  min-width: 3.4ch;
+  font-family: var(--font-display); font-size: clamp(56px, 8vw, 84px); font-weight: 600;
+  line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.meter-value span { margin-left: 2px; font-size: .42em; font-weight: 500; color: var(--ink-2); }
+.track-wrap { position: relative; height: 60px; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.rail { position: absolute; top: 0; bottom: 0; left: 18px; right: 18px; }
+.track {
+  position: absolute; left: 0; right: 0; top: 50%; height: 14px; margin-top: -7px;
+  border-radius: 999px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--rule); overflow: hidden;
+}
+.track-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 999px; background: var(--ink); }
+.knob {
+  position: absolute; top: 50%; left: 100%; width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border-radius: 50%; background: #fff; border: 2px solid var(--ink);
+  box-shadow: 0 2px 6px rgba(19, 32, 59, .18), 0 8px 18px rgba(19, 32, 59, .12);
+  cursor: grab; touch-action: none; outline: none; transition: transform .12s ease;
+}
+.knob::after { content: ""; position: absolute; inset: 10px; border-radius: 50%; background: var(--ink); }
+.knob:focus-visible { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--s-0); }
+.track-wrap.dragging, .track-wrap.dragging .knob { cursor: grabbing; }
+.track-wrap.dragging .knob { transform: scale(1.08); }
+.ticks { position: relative; height: 18px; margin: 0 18px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; top: 0; transform: translateX(-50%); }
+
+/* Pregunta 2: torta */
+.pie-layout { display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr); gap: 48px; align-items: center; }
+.pie-col { width: 100%; }
+#pie { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.slice { stroke: #fff; stroke-width: 2; stroke-linejoin: round; cursor: pointer; }
+.cut { stroke: #fff; stroke-width: 3; stroke-linecap: round; pointer-events: none; }
+.hub { fill: #fff; pointer-events: none; }
+.slice-label { pointer-events: none; }
+.slice-label text { fill: #fff; font-family: var(--font-display); }
+.slice-label .ln { font-size: 14px; font-weight: 600; letter-spacing: .01em; }
+.slice-label .lv { font-size: 23px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.slice-label.compact .ln { display: none; }
+.slice-label.compact .lv { transform: translateY(-11px); font-size: 19px; }
+.slice-label.hide { display: none; }
+.handle { cursor: grab; touch-action: none; outline: none; }
+.handle .hit { fill: transparent; }
+.handle .halo { fill: none; stroke: var(--s-0); stroke-width: 3; opacity: 0; }
+.handle:focus-visible .halo { opacity: 1; }
+.handle .ring { fill: #fff; stroke: var(--ink); stroke-width: 2.5; transform-box: fill-box; transform-origin: center; }
+.handle .dot { fill: var(--ink); }
+#pie.dragging, #pie.dragging .handle { cursor: grabbing; }
+.pie-foot { display: flex; justify-content: center; margin-top: 10px; }
+.link-btn {
+  padding: 6px 2px; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 14px; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--ink); }
+.link-btn:focus-visible { outline: 3px solid var(--s-0); outline-offset: 2px; border-radius: 4px; }
+
+.legend { display: grid; gap: 24px; margin: 0; padding: 0; list-style: none; }
+.leg { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; column-gap: 14px; row-gap: 6px; align-items: center; }
+.sw { width: 14px; height: 14px; border-radius: 4px; }
+.leg-name { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.005em; }
+.leg-val { font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.leg-desc { grid-column: 2 / 4; margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+
+/* Pregunta 3: botones */
+.choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.choice {
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
+  padding: 20px; text-align: left; font: inherit; color: var(--ink);
+  background: #fff; border: 1.5px solid var(--rule); border-radius: var(--radius); cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.choice:hover { border-color: var(--ink-2); transform: translateY(-2px); box-shadow: 0 12px 26px -16px rgba(19, 32, 59, .45); }
+.choice:focus-visible { outline: 3px solid var(--s-0); outline-offset: 3px; }
+.choice[aria-checked="true"] { border-color: var(--ink); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--ink); transform: none; }
+.choice-mark { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--muted); }
+.choice-mark svg { width: 14px; height: 14px; opacity: 0; }
+.choice[aria-checked="true"] .choice-mark { background: var(--ink); border-color: var(--ink); }
+.choice[aria-checked="true"] .choice-mark svg { opacity: 1; }
+.choice-text { display: flex; flex-direction: column; gap: 6px; }
+.choice-title { font-family: var(--font-display); font-size: clamp(17px, 1.9vw, 20px); font-weight: 600; line-height: 1.22; letter-spacing: -0.005em; }
+.choice-sub { font-size: 15px; line-height: 1.4; color: var(--ink-2); }
+
+/* Envío */
+.submit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding-top: 48px; border-top: 1px solid var(--rule); }
+.msg { margin: 0; max-width: 46ch; min-height: 1.5em; font-size: 15px; color: var(--muted); }
+.msg.error { color: var(--critical); font-weight: 600; }
+.send {
+  display: inline-flex; align-items: center; gap: 12px; padding: 18px 30px 18px 34px;
+  border: 0; border-radius: 999px; background: var(--ink); color: #fff; cursor: pointer;
+  font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: .005em;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.send svg { width: 20px; height: 20px; transition: transform .15s ease; }
+.send:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -14px rgba(19, 32, 59, .6); }
+.send:hover svg { transform: translateX(3px); }
+.send:focus-visible { outline: 3px solid var(--s-0); outline-offset: 3px; }
+.send[disabled] { opacity: .65; cursor: progress; transform: none; box-shadow: none; }
+
+/* Agradecimiento */
+.done { margin-top: 64px; padding-top: 56px; border-top: 1px solid var(--rule); }
+.done h2 { margin: 0; font-family: var(--font-display); font-size: clamp(48px, 7vw, 72px); font-weight: 700; line-height: 1; letter-spacing: -0.03em; outline: none; }
+.done-lead { margin: 18px 0 0; max-width: 52ch; font-size: 19px; color: var(--ink-2); }
+.summary { display: grid; margin: 36px 0 0; max-width: 680px; }
+.summary > div { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-top: 1px solid var(--rule); }
+.summary > div:last-child { border-bottom: 1px solid var(--rule); }
+.summary dt { font-size: 14px; font-weight: 600; color: var(--muted); }
+.summary dd { margin: 0; font-size: 18px; font-weight: 600; }
+.mini-bar { display: flex; gap: 2px; height: 10px; max-width: 320px; margin-top: 10px; }
+.mini-bar i { display: block; height: 100%; border-radius: 3px; }
+.preview-note { max-width: 680px; margin-top: 28px; padding: 18px 20px; border-radius: 14px; background: var(--surface-2); }
+.preview-note strong { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.preview-note p { margin: 10px 0 4px; font-size: 15px; color: var(--ink-2); }
+
+/* Pista de arrastre: dos pulsos suaves al cargar */
+@keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+.knob.hint { animation: nudge 1s ease-in-out .9s 2; }
+.handle.hint .ring { animation: nudge 1s ease-in-out .9s 2; }
+
+@media (max-width: 760px) {
+  .pie-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .pie-col { max-width: 320px; margin: 0 auto; }
+}
+@media (max-width: 720px) {
+  .q { grid-template-columns: minmax(0, 1fr); row-gap: 14px; padding: 44px 0; }
+  .q-num { display: flex; align-items: baseline; gap: 8px; font-family: var(--font-body); font-size: 13px; font-weight: 600; letter-spacing: .16em; color: var(--ink); }
+  .q-num small { display: inline; margin: 0; font-size: 13px; }
+  .meter { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .summary > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (max-width: 640px) {
+  .choices { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .choice { aspect-ratio: auto; flex-direction: row; justify-content: flex-start; align-items: flex-start; gap: 14px; padding: 18px; }
+  .send { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <p class="byline">POR FEDERICO FROS CAMPELO</p>
+    <h1>Liderazgo <span class="aug">Aumentado</span> con Inteligencia Artificial</h1>
+    <div class="signature" aria-hidden="true">
+      <i style="background: var(--s-0)"></i><i style="background: var(--s-1)"></i><i style="background: var(--s-2)"></i>
+    </div>
+    <p class="intro">¡Hola! ¿Cómo estás? Me gustaría que me orientes con cómo te sentís y cómo viene tu experiencia hasta ahora con el recorrido que hicimos en este programa de transformación.</p>
+  </header>
+
+  <div id="form-view">
+    <div class="questions">
+
+      <!-- Pregunta 1 -->
+      <section class="q" id="q1" aria-labelledby="q1-title">
+        <div class="q-num" aria-hidden="true">01<small>de 03</small></div>
+        <div>
+          <p class="q-context">Uno de los objetivos de este programa siempre es aumentar en vos el ingenio aplicado al uso de la IA en tu propio entorno de Liderazgo.</p>
+          <h2 class="q-title" id="q1-title">¿En qué grado sentís que eso está sucediendo?</h2>
+          <p class="q-hint">Arrastrá el indicador o tocá cualquier punto de la barra.</p>
+          <div class="q-body meter">
+            <output class="meter-value" id="q1-out" for="q1-knob" aria-hidden="true">100<span>%</span></output>
+            <div class="meter-ctl">
+              <div class="track-wrap" id="q1-wrap">
+                <div class="rail" id="q1-rail">
+                  <div class="track"><div class="track-fill" id="q1-fill"></div></div>
+                  <div class="knob" id="q1-knob" role="slider" tabindex="0" aria-labelledby="q1-title" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="100%"></div>
+                </div>
+              </div>
+              <div class="ticks" aria-hidden="true">
+                <span style="left: 0%">0%</span><span style="left: 25%">25%</span><span style="left: 50%">50%</span><span style="left: 75%">75%</span><span style="left: 100%">100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pregunta 2 -->
+      <section class="q" id="q2" aria-labelledby="q2-title">
+        <div class="q-num" aria-hidden="true">02<small>de 03</small></div>
+        <div>
+          <h2 class="q-title" id="q2-title">¿En qué proporción considerás que el contenido que estamos recorriendo es: estratégico, táctico u operativo?</h2>
+          <p class="q-hint">Arrastrá los dos círculos blancos del borde de la torta. Las tres partes siempre suman 100%.</p>
+          <div class="q-body pie-layout">
+            <div class="pie-col">
+              <svg id="pie" viewBox="-24 -24 368 368" role="group" aria-labelledby="q2-title">
+                <defs>
+                  <filter id="hshadow" x="-60%" y="-60%" width="220%" height="220%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#13203b" flood-opacity=".3"/>
+                  </filter>
+                </defs>
+                <path id="s0" class="slice" style="fill: var(--s-0)"/>
+                <path id="s1" class="slice" style="fill: var(--s-1)"/>
+                <path id="s2" class="slice" style="fill: var(--s-2)"/>
+                <line id="cut0" class="cut" x1="160" y1="160" x2="160" y2="20"/>
+                <line id="cut1" class="cut" x1="160" y1="160" x2="160" y2="20"/>
+                <line id="cut2" class="cut" x1="160" y1="160" x2="160" y2="20"/>
+                <circle class="hub" cx="160" cy="160" r="5"/>
+                <g id="l0" class="slice-label" aria-hidden="true"><text class="ln" text-anchor="middle" y="-5">Estratégico</text><text class="lv" text-anchor="middle" y="20">33%</text></g>
+                <g id="l1" class="slice-label" aria-hidden="true"><text class="ln" text-anchor="middle" y="-5">Táctico</text><text class="lv" text-anchor="middle" y="20">33%</text></g>
+                <g id="l2" class="slice-label" aria-hidden="true"><text class="ln" text-anchor="middle" y="-5">Operativo</text><text class="lv" text-anchor="middle" y="20">34%</text></g>
+                <g id="h0" class="handle" data-k="0" tabindex="0" role="slider" aria-label="Límite entre Estratégico y Táctico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33">
+                  <circle class="hit" r="26"/><circle class="halo" r="21"/><circle class="ring" r="14" filter="url(#hshadow)"/><circle class="dot" r="4"/>
+                </g>
+                <g id="h1" class="handle" data-k="1" tabindex="0" role="slider" aria-label="Límite entre Táctico y Operativo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="66">
+                  <circle class="hit" r="26"/><circle class="halo" r="21"/><circle class="ring" r="14" filter="url(#hshadow)"/><circle class="dot" r="4"/>
+                </g>
+              </svg>
+              <div class="pie-foot"><button type="button" class="link-btn" id="pie-reset">Volver a 33 / 33 / 34</button></div>
+            </div>
+            <ul class="legend">
+              <li class="leg">
+                <span class="sw" style="background: var(--s-0)"></span>
+                <span class="leg-name">Estratégico</span>
+                <span class="leg-val" id="v0">33%</span>
+                <p class="leg-desc">Cambiar mi Mindset y estimularme al cambio de Mindset de mis personas. Dotarme de ingenio y acercarme al Leader-Led Design bajo el Leadership Augmentation Framework.</p>
+              </li>
+              <li class="leg">
+                <span class="sw" style="background: var(--s-1)"></span>
+                <span class="leg-name">Táctico</span>
+                <span class="leg-val" id="v1">33%</span>
+                <p class="leg-desc">Reconocer en mí o en los líderes que me reportan las funciones de liderazgo que me conviene aumentar. Desarrollar pensamiento de Workflow en esta exigente Industria de Procesos Intelectuales. Ayudarme a atravesar ciertos túneles y entender los meta-procesos que experimentamos en esta transformación tecnológica. Evaluar los riesgos reales.</p>
+              </li>
+              <li class="leg">
+                <span class="sw" style="background: var(--s-2)"></span>
+                <span class="leg-name">Operativo</span>
+                <span class="leg-val" id="v2">34%</span>
+                <p class="leg-desc">Generar un espacio de conversación y debate para compartir experiencias internas en un ambiente cuidado, confidencial y controlado. Acercarme a ciertas herramientas que me permitan avanzar en el “cómo” innovador y practicar determinados ejercicios hands-on.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pregunta 3 -->
+      <section class="q" id="q3" aria-labelledby="q3-title">
+        <div class="q-num" aria-hidden="true">03<small>de 03</small></div>
+        <div>
+          <h2 class="q-title" id="q3-title">¿Qué te gustaría seguir estudiando en un próximo programa?</h2>
+          <p class="q-hint">Elegí una opción.</p>
+          <div class="q-body choices" role="radiogroup" aria-labelledby="q3-title">
+            <button type="button" class="choice" role="radio" aria-checked="false" data-value="Diferentes Mecanismos de Abrumamiento y cómo afrontarlos (coping tactics)">
+              <span class="choice-mark"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.4l2.6 2.6L11 4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="choice-text"><span class="choice-title">Diferentes Mecanismos de Abrumamiento y cómo afrontarlos</span><span class="choice-sub">(coping tactics)</span></span>
+            </button>
+            <button type="button" class="choice" role="radio" aria-checked="false" data-value="Resistencia a la Adopción de Nuevas Tecnologías: ¿cómo reducirla en mi gente?">
+              <span class="choice-mark"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.4l2.6 2.6L11 4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="choice-text"><span class="choice-title">Resistencia a la Adopción de Nuevas Tecnologías:</span><span class="choice-sub">¿cómo reducirla en mi gente?</span></span>
+            </button>
+            <button type="button" class="choice" role="radio" aria-checked="false" data-value="Una herramienta concreta: Claude. Para amplificar mi Skillset en esa Tool">
+              <span class="choice-mark"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.4l2.6 2.6L11 4.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="choice-text"><span class="choice-title">Una herramienta concreta: Claude.</span><span class="choice-sub">Para amplificar mi Skillset en esa Tool</span></span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="submit">
+      <p class="msg" id="msg" role="status">Cuando estés conforme con tus respuestas, tocá Enviar.</p>
+      <button type="button" class="send" id="send">
+        <span class="send-label">Enviar</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <section id="done" class="done" hidden aria-labelledby="done-title">
+    <h2 id="done-title" tabindex="-1">¡Gracias!</h2>
+    <p class="done-lead" id="done-lead"></p>
+    <dl class="summary">
+      <div><dt>Ingenio aplicado a la IA</dt><dd id="sum-q1"></dd></div>
+      <div><dt>Contenido del programa</dt><dd><span id="sum-q2"></span><span class="mini-bar" aria-hidden="true"><i id="mb0" style="background: var(--s-0)"></i><i id="mb1" style="background: var(--s-1)"></i><i id="mb2" style="background: var(--s-2)"></i></span></dd></div>
+      <div><dt>Próximo programa</dt><dd id="sum-q3"></dd></div>
+    </dl>
+    <div class="preview-note" id="preview-note" hidden>
+      <strong>Vista previa</strong>
+      <p>El envío por correo todavía no está conectado, así que esta respuesta no se mandó a ningún lado.</p>
+      <button type="button" class="link-btn" id="back">Volver a mis respuestas</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var CONFIG = {
+    // Formspree recibe cada respuesta y la reenvía por correo.
+    // Si se deja vacío, la página funciona como vista previa y no envía nada.
+    endpoint: "https://formspree.io/f/xoedqljp"
+  };
+
+  var NAMES = ["Estratégico", "Táctico", "Operativo"];
+  var C = 160, R = 140;
+  var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  var state = { q1: 100, q1Touched: false, cuts: [33, 66], pieTouched: false, q3: null };
+
+  function $(id) { return document.getElementById(id); }
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  function r2(n) { return Math.round(n * 100) / 100; }
+
+  /* ---------- Pista visual de arrastre ---------- */
+  var knob = $("q1-knob");
+  var handles = [$("h0"), $("h1")];
+  function addHints() { knob.classList.add("hint"); handles.forEach(function (h) { h.classList.add("hint"); }); }
+  function clearHints() { knob.classList.remove("hint"); handles.forEach(function (h) { h.classList.remove("hint"); }); }
+
+  /* ---------- Pregunta 1: barra ---------- */
+  var wrap = $("q1-wrap"), rail = $("q1-rail"), fill = $("q1-fill"), out = $("q1-out");
+
+  function renderQ1() {
+    var v = state.q1;
+    fill.style.width = v + "%";
+    knob.style.left = v + "%";
+    out.firstChild.nodeValue = String(v);
+    knob.setAttribute("aria-valuenow", v);
+    knob.setAttribute("aria-valuetext", v + "%");
+  }
+  function setQ1(v) {
+    v = clamp(Math.round(v), 0, 100);
+    state.q1Touched = true;
+    clearHints();
+    if (v !== state.q1) { state.q1 = v; renderQ1(); }
+  }
+  function q1FromX(x) { var r = rail.getBoundingClientRect(); return (x - r.left) / r.width * 100; }
+
+  var q1Drag = null;
+  wrap.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    var onKnob = !!(e.target.closest && e.target.closest("#q1-knob"));
+    if (e.pointerType === "mouse" || onKnob) {
+      q1Drag = { id: e.pointerId, active: true };
+      try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+      wrap.classList.add("dragging");
+      if (!onKnob) setQ1(q1FromX(e.clientX));
+      e.preventDefault();
+    } else {
+      // Toque sobre la barra: se decide al moverse (arrastre horizontal) o al soltar (toque simple)
+      q1Drag = { id: e.pointerId, active: false, x: e.clientX, y: e.clientY };
+    }
+  });
+  wrap.addEventListener("pointermove", function (e) {
+    if (!q1Drag || e.pointerId !== q1Drag.id) return;
+    if (!q1Drag.active) {
+      var dx = Math.abs(e.clientX - q1Drag.x), dy = Math.abs(e.clientY - q1Drag.y);
+      if (dx > 6 && dx > dy) {
+        q1Drag.active = true;
+        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+        wrap.classList.add("dragging");
+      } else { return; }
+    }
+    setQ1(q1FromX(e.clientX));
+  });
+  function endQ1(e, cancelled) {
+    if (!q1Drag || e.pointerId !== q1Drag.id) return;
+    if (!cancelled && !q1Drag.active) setQ1(q1FromX(e.clientX));
+    q1Drag = null;
+    wrap.classList.remove("dragging");
+  }
+  wrap.addEventListener("pointerup", function (e) { endQ1(e, false); });
+  wrap.addEventListener("pointercancel", function (e) { endQ1(e, true); });
+  knob.addEventListener("keydown", function (e) {
+    var step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 }[e.key];
+    if (e.key === "Home") { setQ1(0); e.preventDefault(); return; }
+    if (e.key === "End") { setQ1(100); e.preventDefault(); return; }
+    if (step) { setQ1(state.q1 + step); e.preventDefault(); }
+  });
+
+  /* ---------- Pregunta 2: torta ---------- */
+  var svg = $("pie");
+  var slices = [$("s0"), $("s1"), $("s2")];
+  var cutLines = [$("cut0"), $("cut1"), $("cut2")];
+  var labels = [$("l0"), $("l1"), $("l2")];
+  var legVals = [$("v0"), $("v1"), $("v2")];
+
+  // p: porcentaje (0–100) medido en sentido horario desde las 12
+  function pt(p, r) { var a = p / 100 * 2 * Math.PI; return [C + r * Math.sin(a), C - r * Math.cos(a)]; }
+  function sector(p0, p1) {
+    var span = p1 - p0;
+    if (span <= 0) return "";
+    if (span >= 100) {
+      return "M" + C + " " + (C - R) + "A" + R + " " + R + " 0 1 1 " + C + " " + (C + R) +
+             "A" + R + " " + R + " 0 1 1 " + C + " " + (C - R) + "Z";
+    }
+    var a = pt(p0, R), b = pt(p1, R);
+    return "M" + C + " " + C + "L" + r2(a[0]) + " " + r2(a[1]) +
+           "A" + R + " " + R + " 0 " + (span > 50 ? 1 : 0) + " 1 " + r2(b[0]) + " " + r2(b[1]) + "Z";
+  }
+  function values() { var c = state.cuts; return [c[0], c[1] - c[0], 100 - c[1]]; }
+  function limits(k) { var c = state.cuts; return k === 0 ? [0, c[1]] : [c[0], 100]; }
+
+  function renderPie() {
+    var c = state.cuts, v = values();
+    var bounds = [[0, c[0]], [c[0], c[1]], [c[1], 100]];
+    for (var i = 0; i < 3; i++) {
+      slices[i].setAttribute("d", sector(bounds[i][0], bounds[i][1]));
+      var p = pt((bounds[i][0] + bounds[i][1]) / 2, R * 0.6);
+      labels[i].setAttribute("transform", "translate(" + r2(p[0]) + " " + r2(p[1]) + ")");
+      labels[i].querySelector(".lv").textContent = v[i] + "%";
+      labels[i].classList.toggle("hide", v[i] < 7);
+      labels[i].classList.toggle("compact", v[i] < 20);
+      legVals[i].textContent = v[i] + "%";
+    }
+    [0, c[0], c[1]].forEach(function (p, i) {
+      var e = pt(p, R);
+      cutLines[i].setAttribute("x2", r2(e[0]));
+      cutLines[i].setAttribute("y2", r2(e[1]));
+    });
+    handles.forEach(function (h, k) {
+      var e = pt(c[k], R);
+      h.setAttribute("transform", "translate(" + r2(e[0]) + " " + r2(e[1]) + ")");
+      h.setAttribute("aria-valuenow", c[k]);
+      h.setAttribute("aria-valuetext", NAMES[k] + " " + v[k] + "%, " + NAMES[k + 1] + " " + v[k + 1] + "%");
+    });
+  }
+
+  function pFromEvent(e) {
+    var m = svg.getScreenCTM();
+    if (!m) return null;
+    var q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    var dx = q.x - C, dy = q.y - C;
+    if (dx * dx + dy * dy < 49) return null; // demasiado cerca del centro: ángulo inestable
+    var a = Math.atan2(dx, -dy);
+    if (a < 0) a += 2 * Math.PI;
+    return a / (2 * Math.PI) * 100;
+  }
+  function unwrapNear(p, ref) {
+    var best = p;
+    [p - 100, p + 100].forEach(function (q) { if (Math.abs(q - ref) < Math.abs(best - ref)) best = q; });
+    return best;
+  }
+  function trialMove(k, raw) {
+    var lim = limits(k);
+    return clamp(Math.round(unwrapNear(raw, state.cuts[k])), lim[0], lim[1]);
+  }
+  function commitCut(k, v) {
+    state.pieTouched = true;
+    clearHints();
+    if (v !== state.cuts[k]) { state.cuts[k] = v; renderPie(); }
+  }
+  // Para un click sobre la torta: el corte más cercano que realmente pueda llegar a ese punto
+  function nearestReachable(raw) {
+    var best = null;
+    for (var k = 0; k < 2; k++) {
+      var lim = limits(k), cur = state.cuts[k];
+      [raw, raw - 100, raw + 100].forEach(function (q) {
+        if (q < lim[0] - 0.5 || q > lim[1] + 0.5) return;
+        var d = Math.abs(q - cur);
+        if (!best || d < best.d) best = { k: k, q: q, d: d };
+      });
+    }
+    return best;
+  }
+  function jumpTo(raw) {
+    var b = nearestReachable(raw);
+    if (!b) return -1;
+    var lim = limits(b.k);
+    commitCut(b.k, clamp(Math.round(b.q), lim[0], lim[1]));
+    return b.k;
+  }
+
+  var pieDrag = null, lastPieType = "mouse";
+  svg.addEventListener("pointerdown", function (e) {
+    lastPieType = e.pointerType;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    var h = e.target.closest ? e.target.closest(".handle") : null;
+    if (h) {
+      var k = +h.getAttribute("data-k"), c = state.cuts;
+      // Si los dos cortes están en el mismo lugar, la dirección del primer movimiento decide cuál se mueve
+      var stacked = (c[0] % 100) === (c[1] % 100);
+      pieDrag = { id: e.pointerId, k: stacked ? -1 : k, cands: stacked ? [0, 1] : [k] };
+    } else if (e.pointerType === "mouse") {
+      var raw = pFromEvent(e);
+      if (raw === null) return;
+      var k2 = jumpTo(raw);
+      if (k2 < 0) return;
+      pieDrag = { id: e.pointerId, k: k2, cands: [k2] };
+    } else {
+      return; // en pantallas táctiles, un toque sobre la torta se resuelve con "click"
+    }
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    svg.classList.add("dragging");
+    e.preventDefault();
+  });
+  svg.addEventListener("pointermove", function (e) {
+    if (!pieDrag || e.pointerId !== pieDrag.id) return;
+    var raw = pFromEvent(e);
+    if (raw === null) return;
+    if (pieDrag.k < 0) {
+      for (var i = 0; i < pieDrag.cands.length; i++) {
+        var k = pieDrag.cands[i];
+        if (trialMove(k, raw) !== state.cuts[k]) { pieDrag.k = k; break; }
+      }
+      if (pieDrag.k < 0) return;
+    }
+    commitCut(pieDrag.k, trialMove(pieDrag.k, raw));
+  });
+  function endPie(e) {
+    if (!pieDrag || e.pointerId !== pieDrag.id) return;
+    pieDrag = null;
+    svg.classList.remove("dragging");
+  }
+  svg.addEventListener("pointerup", endPie);
+  svg.addEventListener("pointercancel", endPie);
+  svg.addEventListener("click", function (e) {
+    if (lastPieType === "mouse") return;
+    if (e.target.closest && e.target.closest(".handle")) return;
+    var raw = pFromEvent(e);
+    if (raw !== null) jumpTo(raw);
+  });
+  handles.forEach(function (h, k) {
+    h.addEventListener("keydown", function (e) {
+      var step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 5, PageDown: -5 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      var lim = limits(k);
+      commitCut(k, clamp(state.cuts[k] + step, lim[0], lim[1]));
+    });
+  });
+  $("pie-reset").addEventListener("click", function () {
+    state.cuts = [33, 66];
+    state.pieTouched = true;
+    renderPie();
+  });
+
+  /* ---------- Pregunta 3: botones ---------- */
+  var choices = Array.prototype.slice.call(document.querySelectorAll(".choice"));
+  function renderQ3() {
+    choices.forEach(function (b, i) {
+      var on = b.getAttribute("data-value") === state.q3;
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      b.tabIndex = (on || (!state.q3 && i === 0)) ? 0 : -1;
+    });
+  }
+  choices.forEach(function (b, i) {
+    b.addEventListener("click", function () {
+      state.q3 = b.getAttribute("data-value");
+      renderQ3();
+      clearError();
+    });
+    b.addEventListener("keydown", function (e) {
+      var d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      var n = choices[(i + d + choices.length) % choices.length];
+      n.focus();
+      n.click();
+    });
+  });
+
+  /* ---------- Envío ---------- */
+  var send = $("send"), msg = $("msg"), sendLabel = send.querySelector(".send-label");
+  var DEFAULT_MSG = msg.textContent;
+  function clearError() {
+    if (msg.classList.contains("error")) { msg.classList.remove("error"); msg.textContent = DEFAULT_MSG; }
+  }
+  function showError(text) { msg.textContent = text; msg.classList.add("error"); }
+
+  function payload() {
+    var v = values();
+    // Las claves son los rótulos que se leen en el correo de Formspree
+    return {
+      "_subject": "Feedback · Liderazgo Aumentado con IA",
+      "1. Ingenio aplicado a la IA": state.q1 + "%",
+      "1b. ¿Movió la barra?": state.q1Touched ? "Sí" : "No (quedó en el 100% inicial)",
+      "2. Estratégico": v[0] + "%",
+      "2. Táctico": v[1] + "%",
+      "2. Operativo": v[2] + "%",
+      "2b. ¿Ajustó la torta?": state.pieTouched ? "Sí" : "No (quedó en el 33/33/34 inicial)",
+      "3. Próximo programa": state.q3,
+      "Enviado (hora AR)": new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour12: false, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    };
+  }
+
+  function showDone(preview) {
+    var v = values();
+    $("done-lead").textContent = preview
+      ? "Así queda tu respuesta."
+      : "Tu respuesta ya me llegó. Me ayuda a definir cómo seguimos y cómo cerramos el programa.";
+    $("sum-q1").textContent = state.q1 + "%";
+    $("sum-q2").textContent = NAMES.map(function (n, i) { return n + " " + v[i] + "%"; }).join(" · ");
+    [0, 1, 2].forEach(function (i) {
+      var seg = $("mb" + i);
+      seg.style.flex = v[i] + " 0 0";
+      seg.hidden = v[i] === 0;
+    });
+    $("sum-q3").textContent = state.q3;
+    $("preview-note").hidden = !preview;
+    $("form-view").hidden = true;
+    var done = $("done");
+    done.hidden = false;
+    done.scrollIntoView({ block: "start" });
+    $("done-title").focus({ preventScroll: true });
+  }
+
+  send.addEventListener("click", function () {
+    if (!state.q3) {
+      showError("Falta un paso: elegí qué te gustaría seguir estudiando en la pregunta 3.");
+      $("q3").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      choices[0].focus({ preventScroll: true });
+      return;
+    }
+    if (!CONFIG.endpoint) { showDone(true); return; }
+
+    send.disabled = true;
+    sendLabel.textContent = "Enviando…";
+    fetch(CONFIG.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload())
+    }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      showDone(false);
+    }).catch(function () {
+      showError("No se pudo enviar. Revisá tu conexión y volvé a tocar Enviar.");
+    }).then(function () {
+      send.disabled = false;
+      sendLabel.textContent = "Enviar";
+    });
+  });
+
+  $("back").addEventListener("click", function () {
+    $("done").hidden = true;
+    $("form-view").hidden = false;
+    $("q1").scrollIntoView({ block: "start" });
+  });
+
+  /* ---------- Arranque ---------- */
+  function start(data) {
+    if (data && typeof data === "object") {
+      if (typeof data.q1 === "number") state.q1 = clamp(Math.round(data.q1), 0, 100);
+      if (Array.isArray(data.cuts) && data.cuts.length === 2) {
+        var a = clamp(Math.round(+data.cuts[0] || 0), 0, 100);
+        state.cuts = [a, clamp(Math.round(+data.cuts[1] || 0), a, 100)];
+      }
+      state.q1Touched = !!data.q1Touched;
+      state.pieTouched = !!data.pieTouched;
+      if (typeof data.q3 === "string") state.q3 = data.q3;
+    }
+    renderQ1();
+    renderPie();
+    renderQ3();
+    if (!state.q1Touched && !state.pieTouched && !reduce) addHints();
+  }
+
+  var hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) {
+    hot.snapshot(function () {
+      return { q1: state.q1, q1Touched: state.q1Touched, cuts: state.cuts.slice(), pieTouched: state.pieTouched, q3: state.q3 };
+    });
+  }
+  if (hot && hot.ready) hot.ready(start); else start((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>
